@@ -3,6 +3,7 @@
 #include "GameState.h"
 
 #include<vector>
+#include<array>
 
 // ACTIONSTATUS enum class
 // signals result of player event
@@ -27,6 +28,10 @@ enum class ActionStatus {
 	WUMPUS_MOVED_INTO_ROOM, // lose condition
 	NO_ARROWS_LEFT, // lose condition
  	VALID_SHOT, // if nothing else happens
+
+	// help action
+
+	HELP,
 
 	// quit action
 
@@ -71,6 +76,13 @@ private:
 	std::vector<int> targets_;
 };
 
+
+// HELPACTION class
+// displays help to the user
+class HelpAction : public Action {
+public:
+	ActionStatus execute(GameState& gameState) override;
+};
 
 // QUITACTION class
 // ends the game
