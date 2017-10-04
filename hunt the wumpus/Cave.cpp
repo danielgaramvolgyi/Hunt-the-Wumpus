@@ -42,22 +42,32 @@ std::vector<std::array<int, 3>> generateAdjacencyList(int size) {
 	return shuffleIndices(adjacencyList);
 }
 
-// each element has the given probability of being true
-std::vector<bool> generateRandomBools(int size, double probability) {
-	std::vector<bool> randomBools(size);
-	for (auto& p : randomBools) {
-		if (getRandomNumber(0, 99) < 100 * probability) p = true;
-	}
-	return randomBools;
+bool generateRandomBool(double probability) {
+    bool randomBool;
+    if (getRandomNumber(0, 99) < 100 * probability) randomBool = true;
+	return randomBool;
+}
+
+void randomizeRooms(std::vector<Room>& rooms) {
+    for (Room& room : rooms) {
+        room.hasBats = generateRandomBool(constant::BAT_PROBABILITY);
+        room.hasPit = generateRandomBool(constant::PIT_PROBABILITY);
+    }
+}
+
+void clearStartingPosition(std::vector<Room>& rooms) {
+    rooms[constant::STARTING_POSITION].hasBats = false;
+    rooms[constant::STARTING_POSITION].hasPit = false;
+}
+
+std::vector<Room> generateRooms(int size) {
+    std::vector<Room> rooms(size);
+    randomizeRooms(rooms);
+    clearStartingPosition(rooms);
+    return rooms;
 }
 
 // size has to be even (a 3-regular graph must have an even number of vertices)
-const Cave generateCave(int size)
-{
-	auto pits = generateRandomBools(size, constant::PIT_PROBABILITY);
-	auto bats = generateRandomBools(size, constant::BAT_PROBABILITY);
-	pits[constant::STARTING_POSITION] = false;
-	bats[constant::STARTING_POSITION] = false;
-
-	return Cave{ size, generateAdjacencyList(size),pits,bats };
+const Cave generateCave(int size) {
+	return Cave{ size, generateRooms(size), generateAdjacencyList(size)};
 }

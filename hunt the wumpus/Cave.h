@@ -3,12 +3,17 @@
 #include<vector>
 #include<array>
 
+struct Room {
+    bool hasPit;
+    bool hasBats;
+};
+
 // Cave class
 // stores cave size, adjacency list of rooms, and the position of hazards
 struct Cave {
 	int mapSize;
+	std::vector<Room> rooms;
 	std::vector<std::array<int,3>> adjacencyList;
-	std::vector<bool> pits, bats;
 };
 
 // index ranges are not checked

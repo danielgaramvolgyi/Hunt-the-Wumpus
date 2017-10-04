@@ -10,7 +10,7 @@ int getIndexWithoutBats(GameState& gameState) {
     int newIndex;
     do {
         newIndex = getRandomNumber(0, gameState.cave.mapSize - 1);
-    } while (gameState.cave.bats[newIndex]);
+    } while (gameState.cave.rooms[newIndex].hasBats);
     return newIndex;
 }
 
@@ -20,7 +20,7 @@ ActionStatus handleBatEncounter(GameState& gameState) {
 		gameState.gameOver = true;
 		return ActionStatus::MOVED_INTO_BATS_TO_WUMPUS;
 	}
-	else if (gameState.cave.pits[newIndex]) {
+	else if (gameState.cave.rooms[newIndex].hasPit) {
 		gameState.gameOver = true;
 		return ActionStatus::MOVED_INTO_BATS_TO_PITS;
 	}
@@ -37,11 +37,11 @@ ActionStatus MoveAction::execute(GameState& gameState)
 		gameState.gameOver = true;
 		return ActionStatus::MOVED_INTO_WUMPUS;
 	}
-	else if (gameState.cave.pits[targetIndex_]) {
+	else if (gameState.cave.rooms[targetIndex_].hasPit) {
 		gameState.gameOver = true;
 		return ActionStatus::MOVED_INTO_PITS;
 	}
-	else if (gameState.cave.bats[targetIndex_]) {
+	else if (gameState.cave.rooms[targetIndex_].hasBats) {
 		return handleBatEncounter(gameState);
 	}
 	else {

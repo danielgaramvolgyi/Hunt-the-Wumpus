@@ -22,7 +22,7 @@ void wumpusWarning(const GameState& gameState) {
 void pitWarning(const GameState& gameState) {
 	const auto& adjacentRooms = gameState.cave.adjacencyList[gameState.player.position];
 	if (std::any_of(adjacentRooms.begin(), adjacentRooms.end(),
-		[&gameState](int i) {return gameState.cave.pits[i]; })) {
+		[&gameState](int i) {return gameState.cave.rooms[i].hasPit; })) {
 		std::cout << "You feel a breeze.\n";
 	}
 }
@@ -30,7 +30,7 @@ void pitWarning(const GameState& gameState) {
 void batWarning(const GameState& gameState) {
 	const auto& adjacentRooms = gameState.cave.adjacencyList[gameState.player.position];
 	if (std::any_of(adjacentRooms.begin(), adjacentRooms.end(),
-		[&gameState](int i) {return gameState.cave.bats[i]; })) {
+		[&gameState](int i) {return gameState.cave.rooms[i].hasBats; })) {
 		std::cout << "You hear a bat.\n";
 	}
 }
