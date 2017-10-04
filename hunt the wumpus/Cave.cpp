@@ -18,13 +18,71 @@ void makeCircuit(std::vector<std::array<int, 3>>& adjacencyList) {
 	}
 }
 
+int numberOfPossibleNeighbours(int i, std::vector<bool> hasNeighbours) {
+    int mapSize = hasNeighbours.size();
+    int freeNodes = 0;
+    for (int j = i+2; j < mapSize; ++j) {
+        if (!hasNeighbours[j]) {
+            ++freeNodes;
+        }
+    }
+    return freeNodes;
+}
+
+// returns the map size if no such neighbour exists
+int getNthPossibleNeighbour(int i, int n, std::vector<bool> hasNeighbour) {
+    int mapSize = hasNeighbour.size();
+    int possibleNeighbour = i + 1;
+    while (n > 0 && possibleNeighbour < mapSize) {
+        do {
+            ++possibleNeighbour;
+        } while (possibleNeighbour < mapSize && hasNeighbour[possibleNeighbour]);
+        --n;
+    }
+    return possibleNeighbour;
+}
+
+int getRandomNeighbour(int i, std::vector<bool> hasNeighbour) {
+    return getNthPossibleNeighbour(i, getRandomNumber(1, numberOfPossibleNeighbours(i, hasNeighbour)), hasNeighbour);
+}
+
+int findFirstNeighbourlessIndexAfter(int i, std::vector<bool> hasNeighbour) {
+    int result = i;
+    while (hasNeighbour[result]) {
+        ++result;
+    }
+    return result;
+}
+
+void connectIndices(int i, int j, std::vector<std::array<int, 3>>& adjacencyList, std::vector<bool>& hasNeighbour) {
+    adjacencyList[i][2] = j;
+    adjacencyList[j][2] = i;
+    hasNeighbour[i] = true;
+    hasNeighbour[j] = true;
+}
+
 // TODO
 void getThirdNeighbours(std::vector<std::array<int, 3>>& adjacencyList) {
-	for (std::size_t i = 0; i < adjacencyList.size() / 2; ++i) {
-		int neighbour = i + adjacencyList.size() / 2;
-		adjacencyList[i][2] = neighbour;
-		adjacencyList[neighbour][2] = i;
-	}
+    int mapSize = adjacencyList.size();
+    std::vector<bool> hasNeighbour(mapSize);
+    int currentIndex = 0;
+    for (int i = 0; i < mapSize / 2 - 1; ++i) {
+        while (hasNeighbour[currentIndex]) {
+            ++currentIndex;
+        }
+        int neighbour = getRandomNeighbour(currentIndex, hasNeighbour);
+        connectIndices(currentIndex, neighbour, adjacencyList, hasNeighbour);
+    }
+
+    int firstNeighbourless = findFirstNeighbourlessIndexAfter(0, hasNeighbour);
+    int secondNeighbourless = findFirstNeighbourlessIndexAfter(firstNeighbourless + 1, hasNeighbour);
+    if (firstNeighbourless + 1 != secondNeighbourless) {
+        connectIndices(firstNeighbourless, secondNeighbourless, adjacencyList, hasNeighbour);
+    }
+    else {
+        connectIndices(firstNeighbourless - 1, secondNeighbourless, adjacencyList, hasNeighbour);
+        connectIndices(firstNeighbourless, (secondNeighbourless + 1) % mapSize, adjacencyList, hasNeighbour);
+    }
 }
 
 std::vector<std::array<int, 3>> shuffleAdjacencyList(const std::vector<std::array<int, 3>>& adjacencyList) {
@@ -36,6 +94,7 @@ std::vector<std::array<int, 3>> shuffleAdjacencyList(const std::vector<std::arra
     }
     for (auto& list : shuffledAdjacencyList) {
         replaceNumbers(list.begin(), list.end(), randomPermutation);
+        std::sort(list.begin(), list.end());
     }
     return shuffledAdjacencyList;
 }
