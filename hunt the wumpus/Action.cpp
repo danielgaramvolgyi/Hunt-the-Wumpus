@@ -1,5 +1,6 @@
 #include "Action.h"
 #include "utils.h"
+#include <assert.h>
 
 bool validMove(int targetIndex, const GameState& gs) {
 	const auto& adjacentRooms = gs.cave.adjacencyList[gs.player.position];
@@ -30,8 +31,7 @@ ActionStatus handleBatEncounter(GameState& gameState) {
 	}
 }
 
-ActionStatus MoveAction::execute(GameState& gameState)
-{
+ActionStatus MoveAction::execute(GameState& gameState) {
 	if (!validMove(targetIndex_, gameState)) return ActionStatus::INVALID_MOVE;
 	else if (targetIndex_ == gameState.wumpusPosition) {
 		gameState.gameOver = true;
@@ -50,33 +50,45 @@ ActionStatus MoveAction::execute(GameState& gameState)
 	}
 }
 
-// moves the Wumpus into a random adjacent room
-void moveWumpus(GameState& gameState) {
+void moveWumpusToRandomAdjacentRoom(GameState& gameState) {
 	const auto& adjacentRooms = gameState.cave.adjacencyList[gameState.wumpusPosition];
 	gameState.wumpusPosition = adjacentRooms[getRandomNumber(0, adjacentRooms.size() - 1)];
+}
+
+bool noValidTargets(const std::vector<int>& targets, const GameState& gameState) {
+    return targets.empty() ||
+        !isAdjacent(gameState.player.position, targets[0], gameState.cave);
+}
+
+bool isValidTarget(size_t i, const std::vector<int>& targets, const GameState& gameState) {
+    return i < targets.size() &&
+        isAdjacent(targets[i - 1], targets[i], gameState.cave) &&
+        targets[i] != gameState.player.position;
 }
 
 // targets[i] is valid if it's the index of an adjacent room to targets[i-1]
 // (for i==0 adjacent to the player) and if targets[i] is not the player's position
 // if an index is invalid then so are the ones following it
-std::vector<int> getValidTargets(std::vector<int> targets, const GameState& gameState) {
-	std::vector<int> validTargets;
-	if (targets.empty() ||
-		!isAdjacent(gameState.player.position, targets[0], gameState.cave)) return validTargets;
+std::vector<int> getValidTargets(const std::vector<int>& targets, const GameState& gameState) {
+    std::vector<int> validTargets;
+    if (noValidTargets(targets, gameState)) return validTargets;
+    else {
+        validTargets.push_back(targets[0]);
 
-	validTargets.push_back(targets[0]);
-	
-	for (std::size_t i = 1; i < targets.size(); ++i) {
-		if (targets.size() == i ||
-			!isAdjacent(targets[i-1], targets[i], gameState.cave) ||
-			targets[i] == gameState.player.position) break;
-		validTargets.push_back(targets[i]);
-	}
-
-	return validTargets;
+        size_t i = 1;
+        while (isValidTarget(i, targets, gameState)) {
+            validTargets.push_back(targets[i]);
+            ++i;
+        }
+        return validTargets;
+    }
 }
 
-// TODO: if the shot is valid but there , throw exception
+bool wumpusShot(const std::vector<int>& validTargets, const GameState& gameState) {
+    return std::find(validTargets.begin(), validTargets.end(), gameState.wumpusPosition)
+            != validTargets.end();
+}
+
 ActionStatus ShootAction::execute(GameState& gameState)
 {
 	const auto& validTargets = getValidTargets(targets_, gameState);
@@ -84,35 +96,31 @@ ActionStatus ShootAction::execute(GameState& gameState)
 	// no valid targets
 	if (validTargets.empty()) return ActionStatus::INVALID_SHOT;
 
-	// valid shot but no arrows -- shouldn't happen!
-	if (gameState.player.arrows == 0) {
-		gameState.gameOver = true;
-		return ActionStatus::NO_ARROWS_LEFT;
-	}
-
+	// if the player has no arrows it should already have been game over
+    assert(gameState.player.arrows != 0);
+	--gameState.player.arrows;
+	
 	// wumpus shot
-	else if (std::find(validTargets.begin(), validTargets.end(), gameState.wumpusPosition)
-		!= validTargets.end()) {
+	if (wumpusShot(validTargets,gameState)) {
 		gameState.gameOver = true;
 		return ActionStatus::SHOT_WUMPUS;
 	}
+
 	else {
-		moveWumpus(gameState);
+        moveWumpusToRandomAdjacentRoom(gameState);
 		// wumpus eats player
 		if (gameState.wumpusPosition == gameState.player.position) {
 			gameState.gameOver = true;
 			return ActionStatus::WUMPUS_MOVED_INTO_ROOM;
 		}
 
-		// player runs out of arrows
-		--gameState.player.arrows;
+		// player ran out of arrows
 		if (gameState.player.arrows == 0) {
 			gameState.gameOver = true;
 			return ActionStatus::NO_ARROWS_LEFT;
 		}
 
 		else return ActionStatus::VALID_SHOT;
-
 	}
 }
 

@@ -49,6 +49,25 @@ void IOHandler::prompt(const GameState& gameState) {
 	std::cout << '\n';
 }
 
+void cleanUpCin() {
+    std::cin.clear();
+    std::cin.ignore(10000, '\n');
+}
+
+std::vector<int> getRoomIndices(std::istringstream& input) {
+    std::vector<int> roomIndices;
+    int roomIndex;
+    input >> roomIndex;
+    roomIndices.push_back(roomIndex);
+
+    char ch;
+    while (roomIndices.size() < constant::MAXIMUM_ARROW_REACH && input >> ch >> roomIndex) {
+        if (ch != '-') break;
+        else roomIndices.push_back(roomIndex);
+    }
+    return roomIndices;
+}
+
 std::unique_ptr<Action> IOHandler::getAction()
 {
 	std::string inp = "";
@@ -76,17 +95,15 @@ std::unique_ptr<Action> IOHandler::getAction()
 		}
 		// TODO
 		else if (ch == constant::SHOOT_KEY) {
-			int roomIndex;
-			input >> roomIndex;
-			if (input) {
-				result = std::make_unique<ShootAction>(ShootAction({ roomIndex }));
+            auto roomIndices = getRoomIndices(input);
+			if (!roomIndices.empty()) {
+                result = std::make_unique<ShootAction>(ShootAction{roomIndices});
 				break;
 			}
 		}
 	}
-	std::cin.clear();
-	std::cin.ignore(10000, '\n');
-	std::cout << '\n';
+    cleanUpCin();
+    std::cout << '\n';
 	return result;
 }
 
@@ -106,10 +123,14 @@ void IOHandler::printResult(const ActionStatus& status) {
 			"You have just enough time to realize your fate before you crash into the ground.";
 		break;
 	case ActionStatus::MOVED_INTO_BATS_TO_WUMPUS:
-		output = "batwump";
+		output = "As you enter the next room, you suddenly feel lifted into the air.\n"
+            "You hear the sound of huge wings flapping around you and you find yourself flying through these endless caves.\n"
+            "";
 		break;
 	case ActionStatus::MOVED_INTO_BATS_TO_PITS:
-		output = "batpit";
+		output = "As you enter the next room, you suddenly feel lifted into the air.\n"
+            "You hear the sound of huge wings flapping around you and you find yourself flying through these endless caves.\n"
+            "After a few moments you feel the claws on your shoulders let go ...";
 		break;
 	case ActionStatus::MOVED_INTO_BATS:
 		output = "As you enter the next room, you suddenly feel lifted into the air.\n"
@@ -129,13 +150,17 @@ void IOHandler::printResult(const ActionStatus& status) {
 		output = "win";
 		break;
 	case ActionStatus::WUMPUS_MOVED_INTO_ROOM:
-		output = "As the arrow flies down the empty tunnels you have a terrible premonition. ...";
+        output = "As the arrow flies down the empty tunnels you have a terrible premonition.\n"
+            "You turn around to see the frenzied Wumpus sprinting towards you at an improbable speed.\n"
+            "Before you can react it has already taken hold of you, tearing you into pieces in mere moments.\n"
+            "You will be remembered as one of the many heroes who tried to hunt the beast and failed.";
 		break;
 	case ActionStatus::NO_ARROWS_LEFT:
 		output = "noarrows";
 		break;
 	case ActionStatus::VALID_SHOT:
-		output = "noluck";
+        output = "The arrow flies down the empty tunnels without hitting anything.\n"
+            "You hear the Wumpus stir somewhere deep in the cave before the stifling silence returns.";
 		break;
 	case ActionStatus::HELP:
 		output = "help";

@@ -1,20 +1,29 @@
 #pragma once
 
-// generates random number in the given range (inclusive)
-int getRandomNumber(int min, int max);
+#include <vector>
+#include <iostream>
 
-// pretty print numbers from a container
+bool getRandomBool(double probability);
+int getRandomNumber(int min, int max);
+std::vector<int> getRandomPermutation(int size);
+
+// pretty prints numbers from a vector
 template<typename Iterator>
 void printNumbers(Iterator first, Iterator last) {
-	while (first + 2 < last) {
-		std::cout << *first << ", ";
-		++first;
+    if (first == last) return;
+    for (auto it = first; it < last - 1; ++it) {
+        if (it != first) std::cout << ", ";
+        std::cout << *it;
 	}
-	if (first + 1 < last) {
-		std::cout << *first << " and ";
-		++first;
-	}
-	if (first < last) {
-		std::cout << *first;
-	}
+    if (first != last - 1) std::cout << " and ";
+    std::cout << *(last - 1);
+}
+
+// replace integers in a container according to the rule i -> shuffledNumbers[i]
+// expects the elements to be in the range [0,shuffledNumbers.size())
+template<typename Iterator>
+void replaceNumbers(Iterator first, Iterator last, std::vector<int> shuffledNumbers) {
+    for (auto it = first; it < last; ++it) {
+        *it = shuffledNumbers[*it];
+    }
 }

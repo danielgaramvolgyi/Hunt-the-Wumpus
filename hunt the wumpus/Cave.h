@@ -8,8 +8,6 @@ struct Room {
     bool hasBats;
 };
 
-// Cave class
-// stores cave size, adjacency list of rooms, and the position of hazards
 struct Cave {
 	int mapSize;
 	std::vector<Room> rooms;
@@ -24,8 +22,6 @@ bool isAdjacent(int firstIndex, int secondIndex, const Cave& cave);
 // starting position won't contain any hazards
 const Cave generateCave(int size);
 
-// PLAYER class
-// stores player position and number of available arrows
 struct Player {
 	int position;
 	int arrows;

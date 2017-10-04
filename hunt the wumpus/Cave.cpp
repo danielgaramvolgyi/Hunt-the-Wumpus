@@ -2,7 +2,8 @@
 #include "utils.h"
 #include "constants.h"
 
-#include<algorithm>
+#include <algorithm>
+#include <random>
 
 bool isAdjacent(int firstIndex, int secondIndex, const Cave& cave) {
 	const auto& firstAdjacent = cave.adjacencyList[firstIndex];
@@ -26,9 +27,17 @@ void getThirdNeighbours(std::vector<std::array<int, 3>>& adjacencyList) {
 	}
 }
 
-// TODO
-std::vector<std::array<int, 3>> shuffleIndices(std::vector<std::array<int, 3>>& adjacencyList) {
-	return adjacencyList;
+std::vector<std::array<int, 3>> shuffleAdjacencyList(const std::vector<std::array<int, 3>>& adjacencyList) {
+    size_t mapSize = adjacencyList.size();
+    auto randomPermutation = getRandomPermutation(mapSize);
+    std::vector<std::array<int, 3>> shuffledAdjacencyList(mapSize);
+    for (size_t i = 0; i < mapSize; ++i) {
+        shuffledAdjacencyList[randomPermutation[i]] = adjacencyList[i];
+    }
+    for (auto& list : shuffledAdjacencyList) {
+        replaceNumbers(list.begin(), list.end(), randomPermutation);
+    }
+    return shuffledAdjacencyList;
 }
 
 // generates, in effect, a connected 3-regular graph
@@ -39,19 +48,13 @@ std::vector<std::array<int, 3>> generateAdjacencyList(int size) {
 	std::vector<std::array<int, 3>> adjacencyList(size);
 	makeCircuit(adjacencyList);
 	getThirdNeighbours(adjacencyList);
-	return shuffleIndices(adjacencyList);
-}
-
-bool generateRandomBool(double probability) {
-    bool randomBool;
-    if (getRandomNumber(0, 99) < 100 * probability) randomBool = true;
-	return randomBool;
+    return shuffleAdjacencyList(adjacencyList);
 }
 
 void randomizeRooms(std::vector<Room>& rooms) {
     for (Room& room : rooms) {
-        room.hasBats = generateRandomBool(constant::BAT_PROBABILITY);
-        room.hasPit = generateRandomBool(constant::PIT_PROBABILITY);
+        room.hasBats = getRandomBool(constant::BAT_PROBABILITY);
+        room.hasPit = getRandomBool(constant::PIT_PROBABILITY);
     }
 }
 

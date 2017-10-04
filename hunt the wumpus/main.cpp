@@ -3,9 +3,9 @@
 
 #include "Game.h"
 
-constexpr int CAVESIZE = 20;
-
 int main() {
+
+    constexpr int CAVESIZE = 20;
 	Game game{CAVESIZE};
 	game.run();
 }

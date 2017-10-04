@@ -48,44 +48,31 @@ public:
 	virtual ActionStatus execute(GameState& gameState) =0;
 };
 
-
-// MOVEACTION class
-// handles moving player
-// only executes valid movements!
 class MoveAction : public Action {
 public:
 	explicit MoveAction(int targetIndex) :targetIndex_{targetIndex} {}
 
-	// changes player position, handles encounters with wumpus/pit/bats
+	// changes player position if the target index is valid, handles encounters with wumpus/pit/bats
 	ActionStatus execute(GameState& gameState) override;
 private:
 	int targetIndex_;
 };
 
-
-// SHOOTACTION class
-// handles shooting arrows
-// shoots if the first target is valid 
 class ShootAction : public Action {
 public:
 	ShootAction(std::vector<int> targets) :targets_{targets} {}
 
-	// decreases arrows, checks if wumpus stays alive, moves it if so and checks if it's game over
+	// shoots if the first target is valid, decreases arrows, checks if wumpus stays alive, moves it if so and checks if it's game over
 	ActionStatus execute(GameState& gameState) override;
 private:
 	std::vector<int> targets_;
 };
 
-
-// HELPACTION class
-// displays help to the user
 class HelpAction : public Action {
 public:
 	ActionStatus execute(GameState& gameState) override;
 };
 
-// QUITACTION class
-// ends the game
 class QuitAction : public Action {
 public: 
 	// sets gameOver flag to true
