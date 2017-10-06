@@ -1,13 +1,44 @@
 #include "GameState.h"
 #include "utils.h"
-#include "constants.h"
+#include "constant.h"
 
-// size has to be even (see generateCave)
+#include <iostream>
+
+// wumpus position is random but not equal to the player position
+int getWumpusPosition(int caveSize, int playerPosition) {
+    int random = getRandomNumber(1, caveSize - 1);
+    return (random + playerPosition) % caveSize;
+}
+
+// caveSize has to be even (see generateCave)
 GameState::GameState(int caveSize)
 	:cave{generateCave(caveSize)}, 
 	player{constant::STARTING_POSITION,constant::STARTING_ARROWS}, 
-	gameOver{false} {
-	//wumpus position is random and not equal to STARTING_POSITION
-	int random = getRandomNumber(1, caveSize - 1);
-	wumpusPosition = (random + constant::STARTING_POSITION) % caveSize;
+	gameOver{false},
+    wumpusPosition{getWumpusPosition(caveSize, constant::STARTING_POSITION)} {}
+
+void printDebugInfo(const GameState& gameState) {
+    std::cout << "Mapsize: " << gameState.cave.mapSize << '\n';
+    for (int i = 0; i < gameState.cave.mapSize; ++i) {
+        const Room& currentRoom = gameState.cave.rooms[i];
+        const auto& currentNeighbours = gameState.cave.adjacencyList[i];
+        
+        std::cout << "Room " << i << ": ";
+        if (i == gameState.player.position) {
+            std::cout << "player ";
+        }
+        if (currentRoom.hasBats) {
+            std::cout << "bats ";
+        }
+        if (currentRoom.hasPit) {
+            std::cout << "pit ";
+        }
+        if (i == gameState.wumpusPosition) {
+            std::cout << "wumpus ";
+        }
+        std::cout << "neighbours: ";
+        printNumbers(currentNeighbours.begin(), currentNeighbours.end());
+        std::cout << '\n';
+    }
+    std::cout << "Number of arrows: " << gameState.player.arrows << '\n';
 }

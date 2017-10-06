@@ -7,7 +7,7 @@ bool validMove(int targetIndex, const GameState& gs) {
 	return std::find(adjacentRooms.begin(), adjacentRooms.end(), targetIndex) != adjacentRooms.end();
 }
 
-int getIndexWithoutBats(GameState& gameState) {
+int getRandomIndexWithoutBats(GameState& gameState) {
     int newIndex;
     do {
         newIndex = getRandomNumber(0, gameState.cave.mapSize - 1);
@@ -16,8 +16,10 @@ int getIndexWithoutBats(GameState& gameState) {
 }
 
 ActionStatus handleBatEncounter(GameState& gameState) {
-    int newIndex = getIndexWithoutBats(gameState);
-	if (newIndex == gameState.wumpusPosition) {
+    int newIndex = getRandomIndexWithoutBats(gameState);
+    gameState.player.position = newIndex;
+
+    if (newIndex == gameState.wumpusPosition) {
 		gameState.gameOver = true;
 		return ActionStatus::MOVED_INTO_BATS_TO_WUMPUS;
 	}
@@ -26,26 +28,28 @@ ActionStatus handleBatEncounter(GameState& gameState) {
 		return ActionStatus::MOVED_INTO_BATS_TO_PITS;
 	}
 	else {
-		gameState.player.position = newIndex;
 		return ActionStatus::MOVED_INTO_BATS;
 	}
 }
 
-ActionStatus MoveAction::execute(GameState& gameState) {
-	if (!validMove(targetIndex_, gameState)) return ActionStatus::INVALID_MOVE;
-	else if (targetIndex_ == gameState.wumpusPosition) {
+ActionStatus MoveAction::execute(GameState& gameState) const {
+	if (!validMove(targetIndex, gameState)) return ActionStatus::INVALID_MOVE;
+    
+    gameState.player.position = targetIndex;
+    const Room& targetRoom = gameState.cave.rooms[targetIndex];
+
+    if (targetIndex == gameState.wumpusPosition) {
 		gameState.gameOver = true;
 		return ActionStatus::MOVED_INTO_WUMPUS;
 	}
-	else if (gameState.cave.rooms[targetIndex_].hasPit) {
+	else if (targetRoom.hasPit) {
 		gameState.gameOver = true;
 		return ActionStatus::MOVED_INTO_PITS;
 	}
-	else if (gameState.cave.rooms[targetIndex_].hasBats) {
+	else if (targetRoom.hasBats) {
 		return handleBatEncounter(gameState);
 	}
 	else {
-		gameState.player.position = targetIndex_;
 		return ActionStatus::VALID_MOVE;
 	}
 }
@@ -60,6 +64,7 @@ bool noValidTargets(const std::vector<int>& targets, const GameState& gameState)
         !isAdjacent(gameState.player.position, targets[0], gameState.cave);
 }
 
+// check whether targets[i] is a valid target, assuming that the previous targets were valid
 bool isValidTarget(size_t i, const std::vector<int>& targets, const GameState& gameState) {
     return i < targets.size() &&
         isAdjacent(targets[i - 1], targets[i], gameState.cave) &&
@@ -70,7 +75,7 @@ bool isValidTarget(size_t i, const std::vector<int>& targets, const GameState& g
 // (for i==0 adjacent to the player) and if targets[i] is not the player's position
 // if an index is invalid then so are the ones following it
 std::vector<int> getValidTargets(const std::vector<int>& targets, const GameState& gameState) {
-    std::vector<int> validTargets;
+    std::vector<int> validTargets{};
     if (noValidTargets(targets, gameState)) return validTargets;
     else {
         validTargets.push_back(targets[0]);
@@ -89,9 +94,8 @@ bool wumpusShot(const std::vector<int>& validTargets, const GameState& gameState
             != validTargets.end();
 }
 
-ActionStatus ShootAction::execute(GameState& gameState)
-{
-	const auto& validTargets = getValidTargets(targets_, gameState);
+ActionStatus ShootAction::execute(GameState& gameState) const {
+	const auto& validTargets = getValidTargets(targets, gameState);
 	
 	// no valid targets
 	if (validTargets.empty()) return ActionStatus::INVALID_SHOT;
@@ -124,13 +128,11 @@ ActionStatus ShootAction::execute(GameState& gameState)
 	}
 }
 
-ActionStatus HelpAction::execute(GameState& gameState)
-{
+ActionStatus HelpAction::execute(GameState& gameState) const {
 	return ActionStatus::HELP;
 }
 
-ActionStatus QuitAction::execute(GameState& gameState)
-{
+ActionStatus QuitAction::execute(GameState& gameState) const {
 	gameState.gameOver = true;
 	return ActionStatus::GAME_QUIT;
 }

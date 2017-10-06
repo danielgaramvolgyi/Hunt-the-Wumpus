@@ -140,7 +140,8 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="Action.h" />
-    <ClInclude Include="constants.h" />
+    <ClInclude Include="ActionStatus.h" />
+    <ClInclude Include="constant.h" />
     <ClInclude Include="Game.h" />
     <ClInclude Include="GameState.h" />
     <ClInclude Include="IOHandler.h" />

@@ -1,16 +1,19 @@
 #include "Cave.h"
 #include "utils.h"
-#include "constants.h"
+#include "constant.h"
 
 #include <algorithm>
 #include <random>
+
+using AdjacencyList = std::vector<std::array<int, 3>>;
 
 bool isAdjacent(int firstIndex, int secondIndex, const Cave& cave) {
 	const auto& firstAdjacent = cave.adjacencyList[firstIndex];
 	return find(firstAdjacent.begin(), firstAdjacent.end(), secondIndex) != firstAdjacent.end();
 }
 
-void makeCircuit(std::vector<std::array<int, 3>>& adjacencyList) {
+
+void makeCircuit(AdjacencyList& adjacencyList) {
 	for (std::size_t i = 0; i < adjacencyList.size(); ++i) {
 		int next = (i + 1) % adjacencyList.size();
 		adjacencyList[i][1] = next;
@@ -18,7 +21,7 @@ void makeCircuit(std::vector<std::array<int, 3>>& adjacencyList) {
 	}
 }
 
-int numberOfPossibleNeighbours(int i, std::vector<bool> hasNeighbours) {
+int numberOfPossibleNeighbours(int i, const std::vector<bool>& hasNeighbours) {
     int mapSize = hasNeighbours.size();
     int freeNodes = 0;
     for (int j = i+2; j < mapSize; ++j) {
@@ -29,8 +32,8 @@ int numberOfPossibleNeighbours(int i, std::vector<bool> hasNeighbours) {
     return freeNodes;
 }
 
-// returns the map size if no such neighbour exists
-int getNthPossibleNeighbour(int i, int n, std::vector<bool> hasNeighbour) {
+// returns the map size if there are less than n possible neighbours
+int getNthPossibleNeighbour(int i, int n, const std::vector<bool>& hasNeighbour) {
     int mapSize = hasNeighbour.size();
     int possibleNeighbour = i + 1;
     while (n > 0 && possibleNeighbour < mapSize) {
@@ -42,11 +45,11 @@ int getNthPossibleNeighbour(int i, int n, std::vector<bool> hasNeighbour) {
     return possibleNeighbour;
 }
 
-int getRandomNeighbour(int i, std::vector<bool> hasNeighbour) {
+int getRandomNeighbour(int i, const std::vector<bool>& hasNeighbour) {
     return getNthPossibleNeighbour(i, getRandomNumber(1, numberOfPossibleNeighbours(i, hasNeighbour)), hasNeighbour);
 }
 
-int findFirstNeighbourlessIndexAfter(int i, std::vector<bool> hasNeighbour) {
+int findFirstNeighbourlessIndexAfter(int i, const std::vector<bool>& hasNeighbour) {
     int result = i;
     while (hasNeighbour[result]) {
         ++result;
@@ -54,7 +57,7 @@ int findFirstNeighbourlessIndexAfter(int i, std::vector<bool> hasNeighbour) {
     return result;
 }
 
-void connectIndices(int i, int j, std::vector<std::array<int, 3>>& adjacencyList, std::vector<bool>& hasNeighbour) {
+void connectIndices(int i, int j, AdjacencyList& adjacencyList, std::vector<bool>& hasNeighbour) {
     adjacencyList[i][2] = j;
     adjacencyList[j][2] = i;
     hasNeighbour[i] = true;
@@ -62,7 +65,7 @@ void connectIndices(int i, int j, std::vector<std::array<int, 3>>& adjacencyList
 }
 
 // TODO
-void getThirdNeighbours(std::vector<std::array<int, 3>>& adjacencyList) {
+void getThirdNeighbours(AdjacencyList& adjacencyList) {
     int mapSize = adjacencyList.size();
     std::vector<bool> hasNeighbour(mapSize);
     int currentIndex = 0;
@@ -85,7 +88,7 @@ void getThirdNeighbours(std::vector<std::array<int, 3>>& adjacencyList) {
     }
 }
 
-std::vector<std::array<int, 3>> shuffleAdjacencyList(const std::vector<std::array<int, 3>>& adjacencyList) {
+AdjacencyList shuffleAdjacencyList(const AdjacencyList& adjacencyList) {
     size_t mapSize = adjacencyList.size();
     auto randomPermutation = getRandomPermutation(mapSize);
     std::vector<std::array<int, 3>> shuffledAdjacencyList(mapSize);
@@ -103,8 +106,8 @@ std::vector<std::array<int, 3>> shuffleAdjacencyList(const std::vector<std::arra
 // first vertices 0 and 1, 1 and 2, etc. are connected to ensure connectedness
 // then each vertex gets a random additional neighbour
 // finally the indices are shuffled
-std::vector<std::array<int, 3>> generateAdjacencyList(int size) {
-	std::vector<std::array<int, 3>> adjacencyList(size);
+AdjacencyList generateAdjacencyList(int size) {
+    AdjacencyList adjacencyList(size);
 	makeCircuit(adjacencyList);
 	getThirdNeighbours(adjacencyList);
     return shuffleAdjacencyList(adjacencyList);

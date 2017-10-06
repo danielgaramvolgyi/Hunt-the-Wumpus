@@ -5,7 +5,18 @@
 
 bool getRandomBool(double probability);
 int getRandomNumber(int min, int max);
+
+// returns a vector of the numbers 0..(size-1) in random order
 std::vector<int> getRandomPermutation(int size);
+
+// replace integers in a container according to the rule i -> shuffledNumbers[i]
+// expects the elements to be in the range [0,shuffledNumbers.size())
+template<typename Iterator>
+void replaceNumbers(Iterator first, Iterator last, std::vector<int> shuffledNumbers) {
+    for (auto it = first; it < last; ++it) {
+        *it = shuffledNumbers[*it];
+    }
+}
 
 // pretty prints numbers from a vector
 template<typename Iterator>
@@ -17,13 +28,4 @@ void printNumbers(Iterator first, Iterator last) {
 	}
     if (first != last - 1) std::cout << " and ";
     std::cout << *(last - 1);
-}
-
-// replace integers in a container according to the rule i -> shuffledNumbers[i]
-// expects the elements to be in the range [0,shuffledNumbers.size())
-template<typename Iterator>
-void replaceNumbers(Iterator first, Iterator last, std::vector<int> shuffledNumbers) {
-    for (auto it = first; it < last; ++it) {
-        *it = shuffledNumbers[*it];
-    }
 }

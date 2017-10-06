@@ -1,15 +1,15 @@
 #include "Game.h"
 
 void Game::playTurn() {
-	ioHandler.prompt(gameState);
+	ioHandler.turnPrompt(gameState);
 	ActionStatus turnResult = ioHandler.getAction()->execute(gameState);
-	ioHandler.printResult(turnResult);
+	ioHandler.printResultOfAction(turnResult);
 }
 
 void Game::run() {
-	ioHandler.startOfGame();
+	ioHandler.startOfGamePrompt();
 	while (!gameState.gameOver) {
 		playTurn();
 	}
-	ioHandler.endOfGame();
+	ioHandler.endOfGamePrompt();
 }

@@ -1,6 +1,3 @@
-// TODO: IOHandler implementation, Cave generation, gameStatus debug output
-// TODO LATER: add exceptions (gamestate validity)
-
 #include "Game.h"
 
 int main() {

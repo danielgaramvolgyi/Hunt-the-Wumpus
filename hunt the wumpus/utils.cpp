@@ -10,19 +10,22 @@ bool getRandomBool(double probability) {
     return randomBool;
 }
 
-int getRandomNumber(int min, int max) {
-	static std::random_device seeder;
-	static std::mt19937 engine(seeder());
-	std::uniform_int_distribution<int> dist(min, max);
+auto& getRng() {
+    static std::random_device seeder;
+    static std::mt19937 rng(seeder());
+    return rng;
+}
 
-	return dist(engine);
+int getRandomNumber(int min, int max) {
+	std::uniform_int_distribution<int> dist(min, max);
+	return dist(getRng());
 }
 
 std::vector<int> getRandomPermutation(int size) {
+    // generate the vector {0,1,...,size-1}
     std::vector<int> permutation(size);
     std::iota(permutation.begin(), permutation.end(), 0);
-    static std::random_device seeder;
-    static std::mt19937 rng(seeder());
-    std::shuffle(std::begin(permutation), std::end(permutation), rng);
+
+    std::shuffle(std::begin(permutation), std::end(permutation), getRng());
     return permutation;
 }

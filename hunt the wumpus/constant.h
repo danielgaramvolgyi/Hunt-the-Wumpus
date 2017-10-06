@@ -2,7 +2,7 @@
 
 namespace constant {
 	constexpr double PIT_PROBABILITY = 0.1;
-	constexpr double BAT_PROBABILITY = 0.1;
+	constexpr double BAT_PROBABILITY = 0.15;
 	constexpr int STARTING_POSITION = 0;
 	constexpr int STARTING_ARROWS = 3;
     constexpr int MAXIMUM_ARROW_REACH = 3;

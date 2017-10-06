@@ -1,16 +1,15 @@
-// TODO: writing, input handling
-
 #include "IOHandler.h"
-#include "constants.h"
+#include "constant.h"
 #include "utils.h"
 
 #include <sstream> 
 
-void IOHandler::startOfGame() {
-	std::cout << "You step into the cave. The damp walls muffle the sound of your steps.\n";
-	std::cout << "A faint, sour odor lingers in the air. This, finally, must be the home of the mighty Wumpus.\n";
-	std::cout << "You know that only one of you can leave this cave alive. Whether it will be you or the beast, however, ";
-	std::cout << "is not yet settled...\n\n";
+void IOHandler::startOfGamePrompt() const {
+	const std::string startPrompt = "You step into the cave. The damp walls muffle the sound of your steps.\n"
+	"A faint, sour odor lingers in the air. This, finally, must be the home of the mighty Wumpus.\n"
+	"You know that only one of you can leave this cave alive. Whether it will be you or the beast, however, "
+	 "is not yet settled...\n\n";
+    std::cout << startPrompt;
 }
 
 void wumpusWarning(const GameState& gameState) {
@@ -35,7 +34,7 @@ void batWarning(const GameState& gameState) {
 	}
 }
 
-void IOHandler::prompt(const GameState& gameState) {
+void IOHandler::turnPrompt(const GameState& gameState) const {
 	std::cout << "You are in room " << gameState.player.position << " of the cave. There are tunnels leading to rooms ";
 
 	const auto& adjacentRooms = gameState.cave.adjacencyList[gameState.player.position];
@@ -68,8 +67,8 @@ std::vector<int> getRoomIndices(std::istringstream& input) {
     return roomIndices;
 }
 
-std::unique_ptr<Action> IOHandler::getAction()
-{
+// TODO: rewrite using regex (if its simpler)
+std::unique_ptr<Action> IOHandler::getAction() const {
 	std::string inp = "";
 	std::unique_ptr<Action> result;
 	while (true) {
@@ -93,7 +92,6 @@ std::unique_ptr<Action> IOHandler::getAction()
 				break;
 			}
 		}
-		// TODO
 		else if (ch == constant::SHOOT_KEY) {
             auto roomIndices = getRoomIndices(input);
 			if (!roomIndices.empty()) {
@@ -107,7 +105,7 @@ std::unique_ptr<Action> IOHandler::getAction()
 	return result;
 }
 
-void IOHandler::printResult(const ActionStatus& status) {
+void IOHandler::printResultOfAction(const ActionStatus& status) const {
 	std::string output = "";
 	switch (status) {
 	case ActionStatus::INVALID_MOVE:
@@ -173,7 +171,7 @@ void IOHandler::printResult(const ActionStatus& status) {
 	std::cout << output << '\n' << '\n';
 }
 
-void IOHandler::endOfGame() {
+void IOHandler::endOfGamePrompt() const {
 	std::cout << "GAME OVER.\nThank you for playing!\n";
 	std::cin.get();
 }
