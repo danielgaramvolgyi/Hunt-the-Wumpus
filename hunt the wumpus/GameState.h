@@ -11,7 +11,7 @@ struct GameState {
 	int wumpusPosition;
 	bool gameOver;
 
-	// generates a random cave of the given size
+	// uses a randomly generated cave of the given size
 	explicit GameState(int caveSize);
 };
 

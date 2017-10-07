@@ -26,5 +26,3 @@ struct Player {
 	int position;
 	int arrows;
 };
-
-

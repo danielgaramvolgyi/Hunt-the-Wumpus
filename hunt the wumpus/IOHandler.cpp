@@ -2,7 +2,6 @@
 #include "constant.h"
 #include "utils.h"
 
-
 #include <regex>
 
 void IOHandler::startOfGamePrompt() const {

@@ -136,4 +136,3 @@ ActionStatus QuitAction::execute(GameState& gameState) const {
 	gameState.gameOver = true;
 	return ActionStatus::GAME_QUIT;
 }
-
