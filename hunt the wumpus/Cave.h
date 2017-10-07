@@ -14,7 +14,7 @@ struct Cave {
 	std::vector<std::array<int,3>> adjacencyList;
 };
 
-// index ranges are not checked
+// firstIndex must be a valid room number (0 <= firstIndex < cave.mapSize)
 bool isAdjacent(int firstIndex, int secondIndex, const Cave& cave);
 
 // randomly generates a cave of the given size

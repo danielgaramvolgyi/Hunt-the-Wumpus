@@ -3,6 +3,7 @@
 #include <random>
 #include <numeric>
 #include <algorithm>
+#include <sstream> 
 
 bool getRandomBool(double probability) {
     bool randomBool = false;
@@ -28,4 +29,22 @@ std::vector<int> getRandomPermutation(int size) {
 
     std::shuffle(std::begin(permutation), std::end(permutation), getRng());
     return permutation;
+}
+
+std::vector<int> parseNumberSequence(const std::string& sequence)
+{
+    std::vector<int> numbers{};
+    int currentNumber;
+    char ch;
+    std::istringstream seq{ sequence };
+    while (seq >> currentNumber >> ch) {
+        numbers.push_back(currentNumber);
+    }
+    numbers.push_back(currentNumber);
+    return numbers;
+}
+
+void cleanUpCin() {
+    std::cin.clear();
+    std::cin.ignore(10000, '\n');
 }

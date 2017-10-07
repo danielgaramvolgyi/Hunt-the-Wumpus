@@ -2,7 +2,8 @@
 #include "constant.h"
 #include "utils.h"
 
-#include <sstream> 
+
+#include <regex>
 
 void IOHandler::startOfGamePrompt() const {
 	const std::string startPrompt = "You step into the cave. The damp walls muffle the sound of your steps.\n"
@@ -14,7 +15,7 @@ void IOHandler::startOfGamePrompt() const {
 
 void wumpusWarning(const GameState& gameState) {
 	if (isAdjacent(gameState.wumpusPosition, gameState.player.position, gameState.cave)) {
-		std::cout << "You smell the wumpus.\n";
+		std::cout << "You smell the Wumpus.\n";
 	}
 }
 
@@ -45,64 +46,51 @@ void IOHandler::turnPrompt(const GameState& gameState) const {
 	wumpusWarning(gameState);
 	pitWarning(gameState);
 	batWarning(gameState);
-	std::cout << '\n';
+	std::cout << "\n> ";
 }
 
-void cleanUpCin() {
-    std::cin.clear();
-    std::cin.ignore(10000, '\n');
+const std::regex& getInputPattern() {
+    // e.g. h or q
+    static const std::string helpQuitRegex = std::string("([") + constant::HELP_KEY + constant::QUIT_KEY + "])";
+    // e.g. m13
+    static const std::string moveRegex = std::string("(") + constant::MOVE_KEY + ")(\\d+)";
+    // e.g. s1-3-5
+    static const std::string shootRegex = std::string("(") + constant::SHOOT_KEY + ")((?:\\d+-)*\\d+)";
+    static const std::string inputRegex = helpQuitRegex + '|' + moveRegex + '|' + shootRegex;
+    static const std::regex inputPattern{ inputRegex };
+    return inputPattern;
 }
 
-std::vector<int> getRoomIndices(std::istringstream& input) {
-    std::vector<int> roomIndices;
-    int roomIndex;
-    input >> roomIndex;
-    roomIndices.push_back(roomIndex);
-
-    char ch;
-    while (roomIndices.size() < constant::MAXIMUM_ARROW_REACH && input >> ch >> roomIndex) {
-        if (ch != '-') break;
-        else roomIndices.push_back(roomIndex);
-    }
-    return roomIndices;
-}
-
-// TODO: rewrite using regex (if its simpler)
+// uses regex to parse input
 std::unique_ptr<Action> IOHandler::getAction() const {
-	std::string inp = "";
-	std::unique_ptr<Action> result;
-	while (true) {
-		std::cin >> inp;
-		char ch;
-		std::istringstream input{ inp };
-		input >> ch;
-		if (ch == constant::QUIT_KEY) {
-			result = std::make_unique<QuitAction>(QuitAction());
-			break;
-		}
-		else if (ch == constant::HELP_KEY) {
-			result = std::make_unique<HelpAction>(HelpAction());
-			break;
-		}
-		else if (ch == constant::MOVE_KEY) {
-			int roomIndex;
-			input >> roomIndex;
-			if (input) {
-				result = std::make_unique<MoveAction>(MoveAction(roomIndex));
-				break;
-			}
-		}
-		else if (ch == constant::SHOOT_KEY) {
-            auto roomIndices = getRoomIndices(input);
-			if (!roomIndices.empty()) {
-                result = std::make_unique<ShootAction>(ShootAction{roomIndices});
-				break;
-			}
-		}
-	}
+    std::unique_ptr<Action> result;
+    const std::regex& inputPattern = getInputPattern();
+    while (true) {
+        std::string input = "";
+        std::cin >> input;
+        std::smatch matches;
+        if (std::regex_match(input, matches, inputPattern)) {
+            if (matches[1] == constant::HELP_KEY) {
+                result = std::make_unique<HelpAction>();
+            }
+            else if (matches[1] == constant::QUIT_KEY) {
+                result = std::make_unique<QuitAction>();
+            }
+            else if (matches[2] == constant::MOVE_KEY) {
+                result = std::make_unique<MoveAction>(std::stoi(matches[3]));
+            }
+            else {
+                result = std::make_unique<ShootAction>(parseNumberSequence(matches[5]));
+            }
+            break;
+        }
+        else {
+            std::cout << "Invalid input! Please try again.\n> ";
+            cleanUpCin();
+        }
+    }
     cleanUpCin();
-    std::cout << '\n';
-	return result;
+    return result;
 }
 
 void IOHandler::printResultOfAction(const ActionStatus& status) const {

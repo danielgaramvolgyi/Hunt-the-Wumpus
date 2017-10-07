@@ -9,6 +9,12 @@ int getRandomNumber(int min, int max);
 // returns a vector of the numbers 0..(size-1) in random order
 std::vector<int> getRandomPermutation(int size);
 
+// extracts numbers from a sequence of the form a-b-c-...-z, with a..z being numbers
+std::vector<int> parseNumberSequence(const std::string& sequence);
+
+// clears and flushes cin
+void cleanUpCin();
+
 // replace integers in a container according to the rule i -> shuffledNumbers[i]
 // expects the elements to be in the range [0,shuffledNumbers.size())
 template<typename Iterator>
