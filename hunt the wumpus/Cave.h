@@ -1,7 +1,7 @@
 #pragma once
 
-#include<vector>
-#include<array>
+#include <vector>
+#include <array>
 
 struct Room {
     bool hasPit;
@@ -9,9 +9,9 @@ struct Room {
 };
 
 struct Cave {
-	int mapSize;
-	std::vector<Room> rooms;
-	std::vector<std::array<int,3>> adjacencyList;
+    int mapSize;
+    std::vector<Room> rooms;
+    std::vector<std::array<int, 3>> adjacencyList;
 };
 
 // firstIndex must be a valid room number (0 <= firstIndex < cave.mapSize)
@@ -23,6 +23,6 @@ bool isAdjacent(int firstIndex, int secondIndex, const Cave& cave);
 const Cave generateCave(int size);
 
 struct Player {
-	int position;
-	int arrows;
+    int position;
+    int arrows;
 };

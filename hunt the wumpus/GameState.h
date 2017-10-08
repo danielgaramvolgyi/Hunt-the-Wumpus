@@ -6,13 +6,13 @@
 // stores relevant game information: cave, player, position of the wumpus
 // and whether the game is over
 struct GameState {
-	const Cave cave;
-	Player player;
-	int wumpusPosition;
-	bool gameOver;
+    const Cave cave;
+    Player player;
+    int wumpusPosition;
+    bool gameOver;
 
-	// uses a randomly generated cave of the given size
-	explicit GameState(int caveSize);
+    // uses a randomly generated cave of the given size
+    explicit GameState(int caveSize);
 };
 
 // outputs GameState to cout

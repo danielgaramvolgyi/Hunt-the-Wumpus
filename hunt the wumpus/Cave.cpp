@@ -30,7 +30,7 @@ bool isAdjacent(int firstIndex, int secondIndex, const Cave& cave) {
 
 // size has to be even (a 3-regular graph must have an even number of vertices)
 const Cave generateCave(int size) {
-    return Cave{ size, generateRooms(size), generateAdjacencyList(size)};
+    return Cave{ size, generateRooms(size), generateAdjacencyList(size) };
 }
 
 std::vector<Room> generateRooms(int size) {
@@ -115,7 +115,7 @@ int getRandomNeighbour(int i, const std::vector<bool>& hasThirdNeighbour) {
 int numberOfPossibleNeighbours(int i, const std::vector<bool>& hasThirdNeighbour) {
     int mapSize = hasThirdNeighbour.size();
     int freeNodes = 0;
-    for (int j = i+2; j < mapSize; ++j) {
+    for (int j = i + 2; j < mapSize; ++j) {
         if (!hasThirdNeighbour[j]) {
             ++freeNodes;
         }

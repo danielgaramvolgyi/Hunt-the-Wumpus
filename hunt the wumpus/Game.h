@@ -9,17 +9,17 @@
 class Game {
 private:
     GameState gameState;
-	const IOHandler ioHandler;
+    const IOHandler ioHandler;
 
 public:
     explicit Game(int caveSize)
         :gameState{ caveSize },
-         ioHandler{} {}
+        ioHandler{} {}
 
-	// keeps running turns until the game ends (the player wins, loses or quits)
-	void run();
+    // keeps running turns until the game ends (the player wins, loses or quits)
+    void run();
 
 private:
-	// prompts user for action and then executes action
-	void playTurn();
+    // prompts user for action and then executes action
+    void playTurn();
 };

@@ -31,7 +31,7 @@ void printNumbers(Iterator first, Iterator last) {
     for (auto it = first; it < last - 1; ++it) {
         if (it != first) std::cout << ", ";
         std::cout << *it;
-	}
+    }
     if (first != last - 1) std::cout << " and ";
     std::cout << *(last - 1);
 }

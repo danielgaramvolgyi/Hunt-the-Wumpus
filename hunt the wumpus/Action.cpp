@@ -1,10 +1,11 @@
 #include "Action.h"
 #include "utils.h"
+
 #include <assert.h>
 
 bool validMove(int targetIndex, const GameState& gs) {
-	const auto& adjacentRooms = gs.cave.adjacencyList[gs.player.position];
-	return std::find(adjacentRooms.begin(), adjacentRooms.end(), targetIndex) != adjacentRooms.end();
+    const auto& adjacentRooms = gs.cave.adjacencyList[gs.player.position];
+    return std::find(adjacentRooms.begin(), adjacentRooms.end(), targetIndex) != adjacentRooms.end();
 }
 
 int getRandomIndexWithoutBats(GameState& gameState) {
@@ -20,43 +21,43 @@ ActionStatus handleBatEncounter(GameState& gameState) {
     gameState.player.position = newIndex;
 
     if (newIndex == gameState.wumpusPosition) {
-		gameState.gameOver = true;
-		return ActionStatus::MOVED_INTO_BATS_TO_WUMPUS;
-	}
-	else if (gameState.cave.rooms[newIndex].hasPit) {
-		gameState.gameOver = true;
-		return ActionStatus::MOVED_INTO_BATS_TO_PITS;
-	}
-	else {
-		return ActionStatus::MOVED_INTO_BATS;
-	}
+        gameState.gameOver = true;
+        return ActionStatus::MOVED_INTO_BATS_TO_WUMPUS;
+    }
+    else if (gameState.cave.rooms[newIndex].hasPit) {
+        gameState.gameOver = true;
+        return ActionStatus::MOVED_INTO_BATS_TO_PITS;
+    }
+    else {
+        return ActionStatus::MOVED_INTO_BATS;
+    }
 }
 
 ActionStatus MoveAction::execute(GameState& gameState) const {
-	if (!validMove(targetIndex, gameState)) return ActionStatus::INVALID_MOVE;
-    
+    if (!validMove(targetIndex, gameState)) return ActionStatus::INVALID_MOVE;
+
     gameState.player.position = targetIndex;
     const Room& targetRoom = gameState.cave.rooms[targetIndex];
 
     if (targetIndex == gameState.wumpusPosition) {
-		gameState.gameOver = true;
-		return ActionStatus::MOVED_INTO_WUMPUS;
-	}
-	else if (targetRoom.hasPit) {
-		gameState.gameOver = true;
-		return ActionStatus::MOVED_INTO_PITS;
-	}
-	else if (targetRoom.hasBats) {
-		return handleBatEncounter(gameState);
-	}
-	else {
-		return ActionStatus::VALID_MOVE;
-	}
+        gameState.gameOver = true;
+        return ActionStatus::MOVED_INTO_WUMPUS;
+    }
+    else if (targetRoom.hasPit) {
+        gameState.gameOver = true;
+        return ActionStatus::MOVED_INTO_PITS;
+    }
+    else if (targetRoom.hasBats) {
+        return handleBatEncounter(gameState);
+    }
+    else {
+        return ActionStatus::VALID_MOVE;
+    }
 }
 
 void moveWumpusToRandomAdjacentRoom(GameState& gameState) {
-	const auto& adjacentRooms = gameState.cave.adjacencyList[gameState.wumpusPosition];
-	gameState.wumpusPosition = adjacentRooms[getRandomNumber(0, adjacentRooms.size() - 1)];
+    const auto& adjacentRooms = gameState.cave.adjacencyList[gameState.wumpusPosition];
+    gameState.wumpusPosition = adjacentRooms[getRandomNumber(0, adjacentRooms.size() - 1)];
 }
 
 bool noValidTargets(const std::vector<int>& targets, const GameState& gameState) {
@@ -91,48 +92,48 @@ std::vector<int> getValidTargets(const std::vector<int>& targets, const GameStat
 
 bool wumpusShot(const std::vector<int>& validTargets, const GameState& gameState) {
     return std::find(validTargets.begin(), validTargets.end(), gameState.wumpusPosition)
-            != validTargets.end();
+        != validTargets.end();
 }
 
 ActionStatus ShootAction::execute(GameState& gameState) const {
-	const auto& validTargets = getValidTargets(targets, gameState);
-	
-	// no valid targets
-	if (validTargets.empty()) return ActionStatus::INVALID_SHOT;
+    const auto& validTargets = getValidTargets(targets, gameState);
 
-	// if the player has no arrows it should already have been game over
+    // no valid targets
+    if (validTargets.empty()) return ActionStatus::INVALID_SHOT;
+
+    // if the player has no arrows it should already have been game over
     assert(gameState.player.arrows != 0);
-	--gameState.player.arrows;
-	
-	// wumpus shot
-	if (wumpusShot(validTargets,gameState)) {
-		gameState.gameOver = true;
-		return ActionStatus::SHOT_WUMPUS;
-	}
+    --gameState.player.arrows;
 
-	else {
+    // Wumpus shot
+    if (wumpusShot(validTargets, gameState)) {
+        gameState.gameOver = true;
+        return ActionStatus::SHOT_WUMPUS;
+    }
+
+    else {
         moveWumpusToRandomAdjacentRoom(gameState);
-		// wumpus eats player
-		if (gameState.wumpusPosition == gameState.player.position) {
-			gameState.gameOver = true;
-			return ActionStatus::WUMPUS_MOVED_INTO_ROOM;
-		}
+        // Wumpus eats player
+        if (gameState.wumpusPosition == gameState.player.position) {
+            gameState.gameOver = true;
+            return ActionStatus::WUMPUS_MOVED_INTO_ROOM;
+        }
 
-		// player ran out of arrows
-		if (gameState.player.arrows == 0) {
-			gameState.gameOver = true;
-			return ActionStatus::NO_ARROWS_LEFT;
-		}
+        // player ran out of arrows
+        if (gameState.player.arrows == 0) {
+            gameState.gameOver = true;
+            return ActionStatus::NO_ARROWS_LEFT;
+        }
 
-		else return ActionStatus::VALID_SHOT;
-	}
+        else return ActionStatus::VALID_SHOT;
+    }
 }
 
 ActionStatus HelpAction::execute(GameState& gameState) const {
-	return ActionStatus::HELP;
+    return ActionStatus::HELP;
 }
 
 ActionStatus QuitAction::execute(GameState& gameState) const {
-	gameState.gameOver = true;
-	return ActionStatus::GAME_QUIT;
+    gameState.gameOver = true;
+    return ActionStatus::GAME_QUIT;
 }
