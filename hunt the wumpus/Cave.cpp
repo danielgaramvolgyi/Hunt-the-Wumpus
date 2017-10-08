@@ -80,7 +80,7 @@ void getThirdNeighbours(AdjacencyList& adjacencyList) {
 
 void drawAllEdgesExceptLast(AdjacencyList& adjacencyList, std::vector<bool>& hasThirdNeighbour) {
     int mapSize = hasThirdNeighbour.size();
-    int currentIndex = 0;
+    int currentIndex = -1;
     // find the first vertex that needs an additional neighbour and connect it to a random free vertex
     // do this mapSize/2 - 1 times
     for (int i = 0; i < mapSize / 2 - 1; ++i) {
@@ -137,7 +137,7 @@ int getNthPossibleNeighbour(int i, int n, const std::vector<bool>& hasThirdNeigh
 int findFirstIndexWithoutThirdNeighbourAfter(int i, const std::vector<bool>& hasThirdNeighbour) {
     int mapSize = hasThirdNeighbour.size();
     int result = i + 1;
-    while (hasThirdNeighbour[result] && result < mapSize) {
+    while (result < mapSize && hasThirdNeighbour[result]) {
         ++result;
     }
     return result;

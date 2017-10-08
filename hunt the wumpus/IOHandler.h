@@ -17,6 +17,8 @@ public:
     void endOfGamePrompt() const;
     void printResultOfAction(const ActionStatus& status) const;
 
+    void IOHandler::helpPrompt() const;
+
     // outputs relevant information at the start of a turn
     // (e.g. current room, number of arrows, hints about hazards
     // in adjacent rooms)
